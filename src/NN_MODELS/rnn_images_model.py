@@ -36,7 +36,9 @@ class rcnn_model:
         self.model = self.get_cnn_model(conv1_size,conv2_size,no_layers)
         video_input = Input(shape=(sequence_length, IM_HEIGHT, IM_WIDTH, NUMBER_CHANNELS))
         encoded_frame_sequence = TimeDistributed(self.model)(video_input) # the output will be a sequence of vectors
-        encoded_video = LSTM(256)(encoded_frame_sequence)
+        encoded_video_1 = LSTM(64)(encoded_frame_sequence)
+        self.encoded_video = Dense(32)
+        encoded_video = self.encoded_video(encoded_video_1)
         output = Dense(number_outputs, activation='linear')(encoded_video)#([encoded_video,self.imumodel])
         self.model = Model(inputs=[video_input,pose_input], outputs=output)
 

@@ -62,8 +62,8 @@ try:
 
     with open("lr_rcnn.txt","w") as file:
         file.write("lr,decay,val\n")
-        for lr_test in [-3]:#,-4,-5,-6,-7,-8]:
-            for decay_test in [0]:#,1e-6,1e-5,1e-4]:
+        for lr_test in [-4,-5,-6,-7]:
+            for decay_test in [0,1e-6,1e-5]:
                 max = -1e-6
                 val = get_vals(lr = lr_test,decay = decay_test)
                 file.write(str(lr) + "," + str(decay_test)+ "," + str(val) + "\n")
@@ -71,11 +71,11 @@ try:
                     lr = lr_test
                     decay = decay_test
 
-    send_slack_message("Finished Lr and decay optimisation")
+    send_slack_message("Finished Lr and decay optimisation images")
     bo1 = BayesianOptimization(lambda conv1_size,conv2_size,no_layers: get_vals(conv1_size,conv2_size,no_layers,opt=3,lr=lr,decay=decay),
-                              {"conv1_size":(4,6),"conv2_size":(4,6),"no_layers":(2,4)})
-    bo1.explore({"conv1_size":(4,6),"conv2_size":(4,6),"no_layers":(2,4)})
-    bo1.maximize(init_points=2, n_iter=1, kappa=10,acq="ucb") #, acq="ucb"
+                              {"conv1_size":(4,5),"conv2_size":(4,5),"no_layers":(2,4)})
+    bo1.explore({"conv1_size":(4,5),"conv2_size":(4,5),"no_layers":(2,4)})
+    bo1.maximize(init_points=2, n_iter=300, kappa=10,acq="ucb") #, acq="ucb"
 
 
     json.dump(bo.res['max'], open("bayes_orcnn_pt_results.txt",'w'))
@@ -91,13 +91,13 @@ try:
     no_layers = bo.res["max"]['max_params']['no_layers']
 
 
-    send_slack_message("Finished Bayesian Optimisation")
+    send_slack_message("Finished Bayesian Optimisation of images")
 
     epochs = 500
 
     with open("time_gap_images_results.txt","w") as file:
         file.write("Time_gap,nnl\n")
-        for time_gap in [10]:#range(10,100,5):
+        for time_gap in range(5,100,5):
             print("On time gap " + str(time_gap))
             send_slack_message("Checking pose model time gap : " + str(time_gap))
             params_train = get_params(time_gap,2)

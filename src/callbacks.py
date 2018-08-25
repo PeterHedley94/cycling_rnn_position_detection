@@ -36,8 +36,8 @@ class logs(object):
         self.json_log = open(JSON_LOG_FILE, mode='wt', buffering=1)
         self.json_logging_callback = LambdaCallback(
             on_epoch_end=lambda epoch, logs: self.json_log.write(
-                json.dumps({'epoch': epoch, 'loss': logs['loss'], 'accuracy': logs['acc']
-                               ,'val_loss' : logs['val_loss'],'val_accuracy': logs['val_acc']}) + '\n'),
+                json.dumps({'epoch': epoch, 'loss': logs['loss']
+                               ,'val_loss' : logs['val_loss']}) + '\n'),
             on_train_end=lambda logs: self.json_log.close()
         )
 
@@ -65,7 +65,7 @@ class logs(object):
 
     def update_counter(self,epoch,logs):
         self.counter += 1
-        values_to_add = 'Epoch: ' + str(epoch+1) + '\nLoss: ' + str(logs['loss'])+ '\nAccuracy: ' + str(logs['acc']) + '\nVal_loss: ' + str(logs['val_loss']) + '\nVal_accuracy: '  + str(logs['val_acc'])
+        values_to_add = 'Epoch: ' + str(epoch+1) + '\nLoss: ' + str(logs['loss']) + '\nVal_loss: ' + str(logs['val_loss'])
         percentage = str(self.counter/NUMBER_EPOCHS * 100)
         title_string = percentage + str('% [')
         for i in range(round(self.counter/NUMBER_EPOCHS * 10)):

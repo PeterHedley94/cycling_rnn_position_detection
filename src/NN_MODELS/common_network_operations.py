@@ -1,6 +1,6 @@
-from utils.common import *
+from src.common import *
 import keras
-from utils.folder_manipulation import *
+from src.DATA_PREPARATION.folder_manipulation import *
 from scipy import stats
 
 #CREATE FOLDER SUBSTRUCTURE REQUIRED TO RUN MODEL
