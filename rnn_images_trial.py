@@ -39,6 +39,7 @@ def get_vals(conv1_size = 5,conv2_size = 5,no_layers=4,opt = 3,lr=-6,decay = 0):
     #test model
     train_generator = DataGenerator(**params_train)
     train_gen = train_generator.generate()
+
     val = 0
     for i in range(train_generator.batches_per_epoch):
         [x_images_,x_],y_ = train_gen.__next__()
@@ -57,8 +58,8 @@ epochs = 2
 
 with open("lr_rcnn.txt","w") as file:
     file.write("lr,decay,val\n")
-    for lr_test in [-3,-4,-5,-6,-7,-8]:
-        for decay_test in [0,1e-6,1e-5,1e-4]:
+    for lr_test in [-3]:#,-4,-5,-6,-7,-8]:
+        for decay_test in [0]:#,1e-6,1e-5,1e-4]:
             max = -1e-6
             val = get_vals(lr = lr_test,decay = decay_test)
             file.write(str(lr) + "," + str(decay_test)+ "," + str(val) + "\n")
@@ -70,7 +71,7 @@ with open("lr_rcnn.txt","w") as file:
 bo1 = BayesianOptimization(lambda conv1_size,conv2_size,no_layers: get_vals(conv1_size,conv2_size,no_layers,opt=3,lr=lr,decay=decay),
                           {"conv1_size":(4,8),"conv2_size":(4,8),"no_layers":(2,4)})
 bo1.explore({"conv1_size":(4,6),"conv2_size":(4,6),"no_layers":(2,4)})
-bo1.maximize(init_points=2, n_iter=300, kappa=10,acq="ucb") #, acq="ucb"
+bo1.maximize(init_points=2, n_iter=1, kappa=10,acq="ucb") #, acq="ucb"
 
 
 json.dump(bo.res['max'], open("bayes_orcnn_pt_results.txt",'w'))
@@ -81,9 +82,9 @@ np.save("bayes_rcnn_opt_all_values",bo.res['all']['values'])
 for i in bo.res['all']['params']:
     json.dump(i, open("bayes_opt_all_results.txt",'a'))
 
-conv1_size = bo.res["max"]['conv1_size']
-conv2_size = bo.res["max"]['conv2_size']
-no_layers = bo.res["max"]['no_layers']
+conv1_size = bo.res["max"]['max_params']['conv1_size']
+conv2_size = bo.res["max"]['max_params']['conv2_size']
+no_layers = bo.res["max"]['max_params']['no_layers']
 ##########################################
 #CHECKS
 params_train = get_params(10,16)
@@ -91,19 +92,36 @@ train_generator = DataGenerator(**params_train)
 train_gen = train_generator.generate()
 [x_images_,x_],y_ = train_gen.__next__()
 
-epochs = 2000
+epochs = 2
 
 with open("time_gap_results.txt","w") as file:
-    file.write("Time_gap,nn,linear_model\n")
+    file.write("Time_gap,nnl\n")
     for time_gap in [10]:#range(10,100,5):
         print("On time gap " + str(time_gap))
         params_train = get_params(time_gap,2)
         model = rcnn_model(number_outputs,sequence_length)
         model.train(epochs,params_train)
         results = [time_gap]
-        results.append(model.test(x,y))
+
 
         ##########################################
+        params_val = get_params(time_gap = 15,batch_size=batch_size,directory=validation_directory)
+
+
+        #test model
+        train_generator = DataGenerator(**params_train)
+        train_gen = train_generator.generate()
+
+        val = 0
+        for i in range(train_generator.batches_per_epoch):
+            [x_images_,x_],y_ = train_gen.__next__()
+            x = x_images_.reshape((batch_size,sequence_length,IM_HEIGHT,IM_WIDTH,NUMBER_CHANNELS))
+            y = y_
+            val += model.test([x,x_],y)/train_generator.batches_per_epoch
+
+        results.append(val)
+        file.write(str(results[0]) + "," + str(results[1]) + "\n")
+        '''
         train_generator = DataGenerator(**params_train)
         train_gen = train_generator.generate()
         [x_images_,x_],y_ = train_gen.__next__()

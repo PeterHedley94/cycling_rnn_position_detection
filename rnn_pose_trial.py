@@ -69,6 +69,7 @@ decay = 0
 epochs = 2
 opt = 3
 
+'''
 with open("lr_pose.txt","w") as file:
     file.write("lr,decay,val\n")
     for lr_test in [-3,-4,-5,-6,-7,-8]:
@@ -78,12 +79,12 @@ with open("lr_pose.txt","w") as file:
             file.write(str(lr) + "," + str(decay_test)+ "," + str(val) + "\n")
             if val > max:
                 lr = lr_test
-                decay = decay_test
+                decay = decay_test'''
 
 bo = BayesianOptimization(lambda lstm_1_size,lstm_2_size: get_vals(lstm_1_size,lstm_2_size,opt,lr,decay),
                           {"lstm_1_size":(4,8),"lstm_2_size":(4,8)})
 bo.explore({"lstm_1_size":(4,8),"lstm_2_size":(4,8)})
-bo.maximize(init_points=2, n_iter=3, kappa=10,acq="ucb") #, acq="ucb"
+bo.maximize(init_points=2, n_iter=1, kappa=10,acq="ucb") #, acq="ucb"
 
 
 json.dump(bo.res['max'], open("bayes_opt_pose_results.txt",'w'))
@@ -94,8 +95,8 @@ np.save("bayes_opt_all_values",bo.res['all']['values'])
 for i in bo.res['all']['params']:
     json.dump(i, open("bayes_opt_pose_all_results.txt",'a'))
 
-lstm_1_size = bo.res["max"]['lstm_1_size']
-lstm_2_size = bo.res["max"]['lstm_2_size']
+lstm_1_size = bo.res["max"]['max_params']['lstm_1_size']
+lstm_2_size = bo.res["max"]['max_params']['lstm_2_size']
 
 
 epochs = 2
