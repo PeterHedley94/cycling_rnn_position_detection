@@ -3,9 +3,24 @@
 from keras.callbacks import LambdaCallback
 import json
 import requests
-from utils.common import *
+from src.common import *
 from math import ceil
 
+
+
+def send_slack_message(message):
+    if SEND_TO_SLACK:
+        slack_data = {'text': str(message)}
+
+        response = requests.post(
+            webhook_url, data=json.dumps(slack_data),
+            headers={'Content-Type': 'application/json'}
+        )
+        if response.status_code != 200:
+            raise ValueError(
+                'Request to slack returned an error %s, the response is:\n%s'
+                % (response.status_code, response.text)
+            )
 
 class logs(object):
     def __init__(self):
@@ -37,7 +52,6 @@ class logs(object):
         self.json_log = open(JSON_LOG_FILE, mode='wt', buffering=1)
         if SEND_TO_SLACK:
             slack_data = {'text': "The wolf has started to prowl"}
-            webhook_url = 'https://hooks.slack.com/services/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'
             self.counter = 0
             response = requests.post(
                 webhook_url, data=json.dumps(slack_data),
@@ -70,7 +84,7 @@ class logs(object):
                 }
             ]
         }
-        webhook_url = 'https://hooks.slack.com/services/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'
+
 
 
         print(self.counter)
@@ -91,10 +105,11 @@ class logs(object):
 
 
 
+
+
     def end_of_training(self, logs):
         if SEND_TO_SLACK:
             slack_data = {'text': "The wolf has ended its hunt"}
-            webhook_url = 'https://hooks.slack.com/services/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'
 
             response = requests.post(
                 webhook_url, data=json.dumps(slack_data),

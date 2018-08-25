@@ -45,7 +45,7 @@ class rnn_model:
             self.model.compile(loss='mse', optimizer=adam)
 
     def train(self,x,y,epochs):
-        self.model.fit(x,y,batch_size=4, epochs=epochs, shuffle=False,verbose = 1)
+        self.model.fit(x,y,batch_size=4, epochs=epochs, shuffle=False,verbose = 0)
 
     def test(self,x,y):
         return self.model.evaluate(x,y)

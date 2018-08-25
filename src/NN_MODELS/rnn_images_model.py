@@ -74,7 +74,7 @@ class rcnn_model:
         #test_in = train_gen.__next__()
         steps_per_epoch_ =  train_generator.batches_per_epoch
         ##########################
-        self.model.fit_generator(train_gen,steps_per_epoch = steps_per_epoch_, epochs=epochs)
+        self.model.fit_generator(train_gen,steps_per_epoch = steps_per_epoch_, epochs=epochs,verbose=0)
 
     def test(self,x,y):
         return self.model.evaluate(x,y)

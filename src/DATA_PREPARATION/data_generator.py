@@ -171,7 +171,6 @@ class DataGenerator(object):
         # Loop over the input: make call to dstack then append result with label:
         k = 0
         for seq_no in range(self.effective_batch_size):
-            #print("NEW SEQUENCE")
             index = batch_indexes[seq_no]
             i_T_W_CL1 = self.get_T_WC(self.gd(self.T_WS_C[index]),self.gd(self.T_WS_r[index]))[:3,:]
             if self.debug_mode_:
