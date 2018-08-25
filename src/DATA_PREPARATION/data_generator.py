@@ -178,7 +178,6 @@ class DataGenerator(object):
                 X_initial_points[seq_no,:,None] = i_T_W_CL1[:3,3:].reshape((-1,1))
 
             if self.use_images:
-                print("Getting image " + str(self.images[index]) + " \n ")
                 X_images[seq_no,0,:,:,:] = get_resized_image(self.images[index],height=self.image_height,width=self.image_width)
 
             for no_in_seq in range(1,self.sequence_length_,1):
@@ -210,7 +209,7 @@ class DataGenerator(object):
             if self.debug_mode_:
                 return X_initial_points,X_images,X,Y
             else:
-                return X_images,X,Y
+                return [X_images,X],Y
         else:
             if self.debug_mode_:
                 return X_initial_points,X,Y

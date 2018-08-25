@@ -25,7 +25,7 @@ from keras.layers import TimeDistributed
 
 
 class rnn_model:
-    def __init__(self,number_outputs,sequence_length,data_dims,lstm_1_size = 5,lstm2_size = 5,opt = 0.9,lr=6):
+    def __init__(self,number_outputs,sequence_length,data_dims,lstm_1_size = 8,lstm2_size = 8,opt = 3,lr=-3,decay = 0):
         lstm_1_size = int(2**lstm_1_size)
         lstm2_size = int(2**lstm2_size)
         lr = 10.0**(lr)
@@ -35,17 +35,17 @@ class rnn_model:
         self.model.add(LSTM(lstm2_size,activation = "linear"))
         self.model.add(Dense(number_outputs,activation = "linear"))
         if opt <= 1:
-            rms = RMSprop(lr=lr, rho=0.9, epsilon=None, decay=0.0)
+            rms = RMSprop(lr=lr, rho=0.9, epsilon=None, decay=decay)
             self.model.compile(loss='mse', optimizer=rms)
         elif opt <= 2:
-            sgd = SGD(lr=lr, decay=5e-5, momentum=0.9, nesterov=True)
+            sgd = SGD(lr=lr, decay=decay, momentum=0.9, nesterov=True)
             self.model.compile(loss='mse', optimizer=sgd)
         else:
-            adam = Adam(lr=lr, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+            adam = Adam(lr=lr, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decay, amsgrad=False)
             self.model.compile(loss='mse', optimizer=adam)
 
     def train(self,x,y,epochs):
-        self.model.fit(x,y,batch_size=4, epochs=epochs, shuffle=False,verbose = 0)
+        self.model.fit(x,y,batch_size=4, epochs=epochs, shuffle=False,verbose = 1)
 
     def test(self,x,y):
         return self.model.evaluate(x,y)

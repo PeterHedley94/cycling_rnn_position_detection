@@ -24,7 +24,15 @@ def get_folders(directory_):
         print("Could not find any folders/categories!")
     return sorted(folders)
 
+def delete_files(files):
+    for file in files:
+        ## If file exists, delete it ##
+        if os.path.isfile(file):
+            os.remove(file)
+        else:    ## Show an error ##
+            print("Error: %s file not found" % file)
 
+            
 #RETURNS ALL IMAGES NAMES IN A DIRECTORY
 def get_file_names(directory_,string,key = None):
     files = os.listdir(directory_)
