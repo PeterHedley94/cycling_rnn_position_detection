@@ -68,12 +68,12 @@ try:
 
 
 
-    lr = -7
+    lr = -5
     decay = 0
     epochs = 500
     opt = 3
 
-
+    '''
     with open("lr_pose.txt","w") as file:
         file.write("lr,decay,val\n")
         for lr_test in [-3,-4,-5,-6,-7,-8]:
@@ -84,7 +84,7 @@ try:
                 if val > max:
                     lr = lr_test
                     decay = decay_test
-
+    '''
 
     send_slack_message("Finished Lr and decay optimisation")
     bo = BayesianOptimization(lambda lstm_1_size,lstm_2_size: get_vals(lstm_1_size,lstm_2_size,opt,lr,decay),

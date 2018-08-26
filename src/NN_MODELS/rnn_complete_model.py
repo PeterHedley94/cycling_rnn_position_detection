@@ -133,7 +133,7 @@ class rcnn_total_model:
         self.initial_pose_model.fit_generator(train_gen,validation_data=validate_gen,
                                             callbacks=[calls_.json_logging_callback,calls_.slack_callback,
                                             get_model_checkpoint(),get_Tensorboard()],validation_steps=validation_steps_per_epoch_,
-                                            steps_per_epoch = steps_per_epoch_, epochs=epochs,verbose=1)
+                                            steps_per_epoch = steps_per_epoch_, epochs=20000,verbose=1)
 
         self.model_name = "Pose model"
         current_directory = os.path.dirname(os.path.abspath(__file__))

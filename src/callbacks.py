@@ -90,7 +90,8 @@ class logs(object):
         print(self.counter)
         print("The percentage is " + percentage)
         print("The modulus is " + str(self.counter % ceil(NUMBER_EPOCHS/20)))
-
+        print("Sending \n" + str(slack_data))
+        '''
         if SEND_TO_SLACK:
             if self.counter % ceil(NUMBER_EPOCHS/20) == 0:
                 response = requests.post(
@@ -101,7 +102,7 @@ class logs(object):
                     raise ValueError(
                         'Request to slack returned an error %s, the response is:\n%s'
                         % (response.status_code, response.text)
-                    )
+                    )'''
 
 
 

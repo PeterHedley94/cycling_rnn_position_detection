@@ -19,7 +19,7 @@ validation_directory = "/vol/bitbucket/ph817/imp3"#"/home/peter/Documents/okvis_
 
 
 webhook_url = 'https://hooks.slack.com/services/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'
-SEND_TO_SLACK = False
+SEND_TO_SLACK = True
 
 
 #For Model outputs

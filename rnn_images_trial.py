@@ -55,11 +55,11 @@ try:
         else:
             return -val.astype(np.int64)
 
-    lr = -7
-    decay = 0
+    lr = -4
+    decay = 1e-7
     epochs = 250
 
-
+    '''
     with open("lr_rcnn.txt","w") as file:
         file.write("lr,decay,val\n")
         for lr_test in [-4,-5,-6,-7]:
@@ -70,12 +70,12 @@ try:
                 if val > max:
                     lr = lr_test
                     decay = decay_test
-
+    '''
     send_slack_message("Finished Lr and decay optimisation images")
     bo1 = BayesianOptimization(lambda conv1_size,conv2_size,no_layers: get_vals(conv1_size,conv2_size,no_layers,opt=3,lr=lr,decay=decay),
                               {"conv1_size":(4,5),"conv2_size":(4,5),"no_layers":(2,4)})
     bo1.explore({"conv1_size":(4,5),"conv2_size":(4,5),"no_layers":(2,4)})
-    bo1.maximize(init_points=2, n_iter=300, kappa=10,acq="ucb") #, acq="ucb"
+    bo1.maximize(init_points=2, n_iter=50, kappa=10,acq="ucb") #, acq="ucb"
 
 
     json.dump(bo.res['max'], open("bayes_orcnn_pt_results.txt",'w'))
