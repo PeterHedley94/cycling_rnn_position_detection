@@ -79,21 +79,20 @@ class rcnn_total_model:
             self.initial_cnn_model.compile(loss='mse', optimizer=sgd)
             self.initial_pose_model.compile(loss='mse', optimizer=sgd)
         else:
-            adam = Adam(lr=lr, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decay, amsgrad=False)
-            self.initial_cnn_model.compile(loss='mse', optimizer=adam)
-            self.initial_pose_model.compile(loss='mse', optimizer=adam)
+            adam1 = Adam(lr=10**(-4),beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-05, amsgrad=False)
+            self.initial_cnn_model.compile(loss='mse', optimizer=adam1)
+            adam2 = Adam(lr=10.0**(-3.5), beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-05, amsgrad=False)
+            self.initial_pose_model.compile(loss='mse', optimizer=adam2)
 
 
     def get_cnn_model(self,conv1_size,conv2_size,no_layers):
         cnnmodel = Sequential()
-        cnnmodel.add(Conv2D(conv1_size, (3, 3), activation='relu', input_shape=(IM_HEIGHT, IM_WIDTH, NUMBER_CHANNELS)))
-        if no_layers > 2:
-            cnnmodel.add(Conv2D(conv1_size, (3, 3), activation='relu'))
+        cnnmodel.add(Conv2D(32, (3, 3), activation='relu', input_shape=(IM_HEIGHT, IM_WIDTH, NUMBER_CHANNELS)))
+        cnnmodel.add(Conv2D(32, (3, 3), activation='relu'))
         cnnmodel.add(MaxPooling2D(pool_size=(2, 2)))
         cnnmodel.add(Dropout(0.25))
-        cnnmodel.add(Conv2D(conv2_size, (3, 3), activation='relu'))
-        if no_layers > 3:
-            cnnmodel.add(Conv2D(conv2_size, (3, 3), activation='relu'))
+        cnnmodel.add(Conv2D(16, (3, 3), activation='relu'))
+        cnnmodel.add(Conv2D(16, (3, 3), activation='relu'))
         cnnmodel.add(MaxPooling2D(pool_size=(2, 2)))
         cnnmodel.add(Dropout(0.25))
         cnnmodel.add(Flatten())
@@ -150,7 +149,7 @@ class rcnn_total_model:
         for layer in self.initial_cnn_model.layers:
             layer.trainable = False
 
-        adam = Adam(lr=self.lr, beta_1=0.9, beta_2=0.999, epsilon=None, decay=self.decay, amsgrad=False)
+        adam = Adam(lr=10*(-4), beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-05, amsgrad=False)
         self.total_model.compile(loss='mse', optimizer=adam)
         self.total_model.fit_generator(train_gen,validation_data=validate_gen,
                                             callbacks=[calls_.json_logging_callback,calls_.slack_callback,
@@ -172,7 +171,7 @@ class rcnn_total_model:
         for layer in self.initial_cnn_model.layers:
             layer.trainable = True
 
-        adam = Adam(lr=1e-6, beta_1=0.9, beta_2=0.999, epsilon=None, decay=self.decay, amsgrad=False)
+        adam = Adam(lr=10**(-6), beta_1=0.9, beta_2=0.999, epsilon=None, decay=1e-7, amsgrad=False)
         self.total_model.compile(loss='mse', optimizer=adam)
         self.total_model.fit_generator(train_gen,validation_data=validate_gen,
                                             callbacks=[calls_.json_logging_callback,calls_.slack_callback,

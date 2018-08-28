@@ -20,8 +20,8 @@ image_height = 480#180
 image_width= 640#240
 no_image_channels=3
 camera_model_location = os.path.join("utils",'test_camera_model.json')
-train_directory = "/vol/bitbucket/ph817/imp1"#"/home/peter/Tests"#"/home/peter/Documents/okvis_drl/build/imp4"
-validation_directory = "/vol/bitbucket/ph817/imp3"#"/home/peter/Documents/okvis_drl/build/imp4"#
+train_directory = "/vol/gpudata//ph817/imp1"#"/home/peter/Tests"#"/home/peter/Documents/okvis_drl/build/imp4"
+validation_directory = "/vol/gpudata/ph817/imp3"#"/home/peter/Documents/okvis_drl/build/imp4"#
 
 
 webhook_url = 'https://hooks.slack.com/services/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'
@@ -29,7 +29,7 @@ SEND_TO_SLACK = True
 
 
 #For Model outputs
-MODEL_OUTPUTS_FOLDER = "MODEL_OUTPUTS"#os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS')
+MODEL_OUTPUTS_FOLDER = "/vol/gpudata/ph817/MODEL_OUTPUTS"#os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS')
 CHECKPOINTS_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'checkpoints')
 MODEL_SAVE_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'models')
 OLD_MODELS_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'old_models')

@@ -38,8 +38,8 @@ try:
         return params_train
 
 
-    params_train = get_params(time_gap = 15,batch_size=batch_size,directory=train_directory)
-    params_val = get_params(time_gap = 15,batch_size=batch_size,directory=validation_directory)
+    params_train = get_params(time_gap = 30,batch_size=batch_size,directory=train_directory)
+    params_val = get_params(time_gap = 30,batch_size=batch_size,directory=validation_directory)
 
     #train model
     epochs = 500
