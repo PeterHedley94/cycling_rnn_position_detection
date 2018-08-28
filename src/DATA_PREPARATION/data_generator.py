@@ -164,63 +164,45 @@ class DataGenerator(object):
         Y = np.zeros(shape=(self.batch_size, self.n_outputs))
 
         if self.debug_mode_:
-            X_initial_points = np.zeros(shape=(self.batch_size, self.n_outputs))
+            X_final_points = np.zeros(shape=(self.batch_size, self.n_outputs))
 
         if self.use_images:
             X_images = np.zeros(shape=(self.batch_size, self.sequence_length_,self.image_height,self.image_width,self.no_image_channels))
         # Loop over the input: make call to dstack then append result with label:
         k = 0
         for seq_no in range(self.effective_batch_size):
+
             index = batch_indexes[seq_no]
-            i_T_W_CL1 = self.get_T_WC(self.gd(self.T_WS_C[index]),self.gd(self.T_WS_r[index]))[:3,:]
-            if self.debug_mode_:
-                X_initial_points[seq_no,:,None] = i_T_W_CL1[:3,3:].reshape((-1,1))
+            #Get point from before
+            last_point = self.get_T_WC(self.gd(self.T_WS_C[index-1]),self.gd(self.T_WS_r[index-1]))[:3,3:]
 
-            if self.use_images:
-                X_images[seq_no,0,:,:,:] = get_resized_image(self.images[index],height=self.image_height,width=self.image_width)
-
-            for no_in_seq in range(1,self.sequence_length_,1):
+            for no_in_seq in range(0,self.sequence_length_,1):
                 T_W_C_next = self.get_T_WC(self.gd(self.T_WS_C[index+no_in_seq]),self.gd(self.T_WS_r[index+no_in_seq]))[:3,:]
                 #only get difference for translation!!
-                T_W_C_next[:3,3:] = T_W_C_next[:3,3:]-i_T_W_CL1[:3,3:]
+                point = T_W_C_next[:3,3:].copy()
+                T_W_C_next[:3,3:] = T_W_C_next[:3,3:]-last_point
+                last_point = point
                 T_W_C_difference = T_W_C_next.reshape((1,-1)).tolist()[0]
                 X[seq_no,no_in_seq,:] = T_W_C_difference
 
+                if self.debug_mode_ and no_in_seq == self.sequence_length_-1:
+                    X_final_points[seq_no,:,None] = last_point.reshape((-1,1))
                 #Images
                 if self.use_images:
                     X_images[seq_no,no_in_seq,:,:,:] = get_resized_image(self.images[index+no_in_seq],self.image_height,self.image_width)
 
-            #Add first image in sequence
-            #Place origin at start of sequence
-            i_T_W_CL1[:3,3:] = np.array([0,0,0]).reshape((3,1))
-            X[seq_no,0,:] = i_T_W_CL1.reshape((1,-1))
-
             #Add Y data
             y_index = index+self.sequence_length_
-            y_T_W_r = self.gd(self.T_WS_r[y_index]).reshape((3,-1))-i_T_W_CL1[:3,3:]
-            #print(i_T_W_CL1[:3,3:])
-            #i_T_CL1_w = self.reverse_transform(i_T_W_CL1)
-            #y_camera_point = self.world_to_camera(y_T_W_r,i_T_CL1_w)
-            #y_camera_point[2,0] = y_T_W_r[2,0]
-            #print(y_camera_point)
-            Y[seq_no,:,None] = y_T_W_r.reshape((-1,1))
+            y_T_W_r = self.gd(self.T_WS_r[y_index]).reshape((3,-1))
+            Y[seq_no,:,None] = y_T_W_r.reshape((-1,1))-last_point
+
         if self.use_images:
+            X_images = (X_images - 127.5) / 127.5
             if self.debug_mode_:
-                return X_initial_points,X_images,X,Y
+                return X_final_points,X_images,X,Y
             else:
                 return [X_images,X],Y
         else:
             if self.debug_mode_:
-                return X_initial_points,X,Y
+                return X_final_points,X,Y
             return X,Y
-
-
-
-
-
-
-
-
-        # Apply scaling. Move to preprocessing!
-        X = (X - 127.5) / 127.5
-        return X, Y

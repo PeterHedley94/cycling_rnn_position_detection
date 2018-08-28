@@ -10,6 +10,12 @@ sys.path.insert(1,'/usr/local/lib/python3.5/dist-packages')
 import cv2
 
 
+#CREATE FOLDER SUBSTRUCTURE REQUIRED TO RUN MODEL
+def create_folders(folders):
+    for folder in folders:
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
 #RETURNS ALL FOLDER NAMES IN A DIRECTORY
 def get_folders(directory_):
     items = os.listdir(directory_)
@@ -32,7 +38,7 @@ def delete_files(files):
         else:    ## Show an error ##
             print("Error: %s file not found" % file)
 
-            
+
 #RETURNS ALL IMAGES NAMES IN A DIRECTORY
 def get_file_names(directory_,string,key = None):
     files = os.listdir(directory_)

@@ -53,29 +53,36 @@ try:
         if math.isnan(val):
             return -10.0**100
         else:
-            return -val.astype(np.int64)
+            return -val #.astype(np.int64)
 
     lr = -4
-    decay = 1e-7
+    decay = 0.001
     epochs = 250
 
-    '''
-    with open("lr_rcnn.txt","w") as file:
+    with open("lr_images.txt","w") as file:
         file.write("lr,decay,val\n")
-        for lr_test in [-4,-5,-6,-7]:
-            for decay_test in [0,1e-6,1e-5]:
+        for lr_test in range(-80,-30,5):#[-3,-4,-5,-6,-7,-8]:
+            lr_test = lr_test/10
+            max = -1e-6
+            val = get_vals(lr = lr_test,decay = 0)
+            file.write(str(lr_test) + "," + str(0)+ "," + str(val) + "\n")
+            if val > max:
+                lr = lr_test
+                decay = 0
+            for decay_test in range(-60,-30,10):#[0,10**-6,10**-5,10**-4]:
                 max = -1e-6
+                decay_test = 10**(decay_test/10)
                 val = get_vals(lr = lr_test,decay = decay_test)
-                file.write(str(lr) + "," + str(decay_test)+ "," + str(val) + "\n")
+                file.write(str(lr_test) + "," + str(decay_test)+ "," + str(val) + "\n")
                 if val > max:
                     lr = lr_test
                     decay = decay_test
-    '''
+
     send_slack_message("Finished Lr and decay optimisation images")
     bo1 = BayesianOptimization(lambda conv1_size,conv2_size,no_layers: get_vals(conv1_size,conv2_size,no_layers,opt=3,lr=lr,decay=decay),
                               {"conv1_size":(4,5),"conv2_size":(4,5),"no_layers":(2,4)})
     bo1.explore({"conv1_size":(4,5),"conv2_size":(4,5),"no_layers":(2,4)})
-    bo1.maximize(init_points=2, n_iter=50, kappa=10,acq="ucb") #, acq="ucb"
+    bo1.maximize(init_points=2, n_iter=60, kappa=10,acq="ucb") #, acq="ucb"
 
 
     json.dump(bo.res['max'], open("bayes_orcnn_pt_results.txt",'w'))
@@ -83,8 +90,10 @@ try:
 
     np.save("bayes_rcnn_opt_all_values",bo.res['all']['values'])
 
-    for i in bo.res['all']['params']:
-        json.dump(i, open("bayes_opt_all_results.txt",'a'))
+    with open("bayes_opt_images_all_results.txt",'w') as file:
+        for i in bo.res['all']['params']:
+                json.dump(i,file)
+                file.write("\n")
 
     conv1_size = bo.res["max"]['max_params']['conv1_size']
     conv2_size = bo.res["max"]['max_params']['conv2_size']

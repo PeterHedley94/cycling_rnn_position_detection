@@ -3,13 +3,6 @@ import keras
 from src.DATA_PREPARATION.folder_manipulation import *
 from scipy import stats
 
-#CREATE FOLDER SUBSTRUCTURE REQUIRED TO RUN MODEL
-def create_folder_structure():
-    folders = ["MODEL_OUTPUTS",os.path.join("MODEL_OUTPUTS","logs"),os.path.join("MODEL_OUTPUTS","checkpoints")]
-    for folder in folders:
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-
 
 #AFTER TRAINING MOVE ALL MODEL OUTPUTS TO RELEVANT FOLDERS WITH CORRECT NAMING
 def clean_up(model_name):

@@ -1,4 +1,10 @@
-import os
+import os, sys, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+parentdir = os.path.dirname(parentdir)
+sys.path.insert(0,parentdir)
+from src.DATA_PREPARATION.folder_manipulation import *
+
 IM_HEIGHT, IM_WIDTH, NUMBER_CHANNELS = 50,50,3
 #IM_HEIGHT, IM_WIDTH, NUMBER_CHANNELS = 480,640,3
 sequence_length_ = 5
@@ -23,11 +29,19 @@ SEND_TO_SLACK = True
 
 
 #For Model outputs
-CHECKPOINTS_FOLDER = os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS','checkpoints')
-MODEL_SAVE_FOLDER = os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS','models')
-OLD_MODELS_FOLDER = os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS','old_models')
-TENSORBOARD_LOGS_FOLDER = os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS','logs')
-TENSORBOARD_OLD_LOGS_FOLDER = os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS','old_logs')
-INTERMEDIATE_FILE = os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS','checkpoints','intermediate.hdf5')
-JSON_LOG_FILE = os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS','loss_log.json')
-JSON_OLD_LOGS_FOLDER = os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS','old_json')
+MODEL_OUTPUTS_FOLDER = "MODEL_OUTPUTS"#os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS')
+CHECKPOINTS_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'checkpoints')
+MODEL_SAVE_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'models')
+OLD_MODELS_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'old_models')
+TENSORBOARD_LOGS_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'logs')
+TENSORBOARD_OLD_LOGS_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'old_logs')
+INTERMEDIATE_FILE = os.path.join(CHECKPOINTS_FOLDER,'intermediate.hdf5')
+JSON_LOG_FILE = os.path.join(MODEL_OUTPUTS_FOLDER,'loss_log.json')
+JSON_OLD_LOGS_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'old_json')
+GRAPH_OUTPUT_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'graphs')
+
+folders = [MODEL_OUTPUTS_FOLDER,CHECKPOINTS_FOLDER,MODEL_SAVE_FOLDER,OLD_MODELS_FOLDER,
+            TENSORBOARD_LOGS_FOLDER,TENSORBOARD_OLD_LOGS_FOLDER,JSON_OLD_LOGS_FOLDER,
+            GRAPH_OUTPUT_FOLDER]
+
+create_folders(folders)
