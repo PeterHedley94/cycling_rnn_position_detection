@@ -10,7 +10,7 @@ from src.DATA_PREPARATION.folder_manipulation import *
 #from keras.utils import to_categorical
 from PIL import Image
 import json
-
+import cv2
 
 
 
@@ -27,7 +27,8 @@ class DataGenerator(object):
         self.no_image_channels = no_image_channels
         self.time_gap = time_gap
         self.n_outputs = 3 #dx,dy,dz
-        self.data_length = 12 #3x4 camera matrix
+        self.data_dims = (3,4) #3x4 camera matrix
+        self.data_length = 16 #3x4 + ecz
         self.time_distributed_ = time_distributed
         self.debug_mode_ = debug_mode
         self.use_images = images
@@ -149,6 +150,10 @@ class DataGenerator(object):
         camera_point[:3,:] = camera_point[:3,:]+self.c_mat
         return camera_point[:3,:]
 
+    def transform_TW(self,TW_to,TW_from):
+        return np.matmul(TW_to,TW_from)
+
+
     def reverse_transform(self,array):
         reversed = np.zeros((4,4),dtype = np.float64)
         reversed[:3,:4] = np.concatenate((array[:3,:3].transpose(),
@@ -164,45 +169,62 @@ class DataGenerator(object):
         Y = np.zeros(shape=(self.batch_size, self.n_outputs))
 
         if self.debug_mode_:
-            X_final_points = np.zeros(shape=(self.batch_size, self.n_outputs))
+            X_initial_matrices = np.zeros(shape=(self.batch_size,self.data_dims[0],self.data_dims[1]))
 
         if self.use_images:
-            X_images = np.zeros(shape=(self.batch_size, self.sequence_length_,self.image_height,self.image_width,self.no_image_channels))
+            #####################
+            if self.debug_mode_:
+                X_images = np.zeros(shape=(self.batch_size, self.sequence_length_,self.image_height,self.image_width,self.no_image_channels),dtype = np.uint8)
+            else:
+                X_images = np.zeros(shape=(self.batch_size, self.sequence_length_,self.image_height,self.image_width,self.no_image_channels),dtype = np.float32)
         # Loop over the input: make call to dstack then append result with label:
         k = 0
         for seq_no in range(self.effective_batch_size):
 
             index = batch_indexes[seq_no]
             #Get point from before
-            last_point = self.get_T_WC(self.gd(self.T_WS_C[index-1]),self.gd(self.T_WS_r[index-1]))[:3,3:]
+            T_WC_initial = self.get_T_WC(self.gd(self.T_WS_C[index-1]),self.gd(self.T_WS_r[index-1]))
+            T_CW_init = self.reverse_transform(T_WC_initial)
 
             for no_in_seq in range(0,self.sequence_length_,1):
-                T_W_C_next = self.get_T_WC(self.gd(self.T_WS_C[index+no_in_seq]),self.gd(self.T_WS_r[index+no_in_seq]))[:3,:]
-                #only get difference for translation!!
-                point = T_W_C_next[:3,3:].copy()
-                T_W_C_next[:3,3:] = T_W_C_next[:3,3:]-last_point
-                last_point = point
-                T_W_C_difference = T_W_C_next.reshape((1,-1)).tolist()[0]
-                X[seq_no,no_in_seq,:] = T_W_C_difference
+                T_W_C_next = self.get_T_WC(self.gd(self.T_WS_C[index+no_in_seq]),self.gd(self.T_WS_r[index+no_in_seq]))
+
+                c_ez = self.reverse_transform(T_W_C_next)[:,2].tolist()
+
+                #TODO add c_ez
+                T_W_C_transformed = self.transform_TW(T_CW_init,T_W_C_next)[:3,:]
+                last_point = T_W_C_transformed[:3,3:]
+                T_W_C_transformed = T_W_C_transformed.reshape((1,-1)).tolist()[0]
+                #CHANGE TO DEBUG DONT DO THIS + change data length
+                T_W_C_transformed.extend(c_ez)
+                X[seq_no,no_in_seq,:] = T_W_C_transformed
 
                 if self.debug_mode_ and no_in_seq == self.sequence_length_-1:
-                    X_final_points[seq_no,:,None] = last_point.reshape((-1,1))
+                    X_initial_matrices[seq_no,:,:] = T_WC_initial[:3,:]
                 #Images
                 if self.use_images:
-                    X_images[seq_no,no_in_seq,:,:,:] = get_resized_image(self.images[index+no_in_seq],self.image_height,self.image_width)
+                    resized_image = get_resized_image(self.images[index+no_in_seq],self.image_height,self.image_width)
+                    if self.debug_mode_:
+                        X_images[seq_no,no_in_seq,:,:,:] = resized_image
+                        cv2.imshow('l',resized_image)
+                        cv2.waitKey(10)
+                    else:
+                        X_images[seq_no,no_in_seq,:,:,:] = np.float32(resized_image)
 
             #Add Y data
+            #TODO sort Y data
             y_index = index+self.sequence_length_
-            y_T_W_r = self.gd(self.T_WS_r[y_index]).reshape((3,-1))
-            Y[seq_no,:,None] = y_T_W_r.reshape((-1,1))-last_point
+            T_W_C_next = self.get_T_WC(self.gd(self.T_WS_C[y_index]),self.gd(self.T_WS_r[y_index]))
+            T_W_C_transformed = self.transform_TW(T_CW_init,T_W_C_next)[:3,:]
+            Y[seq_no,:,None] = T_W_C_transformed[:3,3:].reshape((-1,1))
 
         if self.use_images:
-            X_images = (X_images - 127.5) / 127.5
+            #X_images = (X_images - 127.5) / 127.5
             if self.debug_mode_:
-                return X_final_points,X_images,X,Y
+                return X_initial_matrices,X_images,X,Y
             else:
                 return [X_images,X],Y
         else:
             if self.debug_mode_:
-                return X_final_points,X,Y
+                return X_initial_matrices,X,Y
             return X,Y

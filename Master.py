@@ -6,16 +6,16 @@ sys.path.insert(0,parentdir)
 sys.path.insert(1,'/usr/local/lib/python3.5/dist-packages')
 import numpy as np,random
 import math,cv2
-from MovementModels.cyclist_rnn_model import *
-from MovementModels.data_generator import *
-from utils.pose_visualiser import *
+#from src.NN_MODELS.cyclist_rnn_model import *
+from src.DATA_PREPARATION.data_generator import *
+#from .pose_visualiser import *
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 
 # = CNN_LSTM()#cached_model="/home/peter/catkin_ws/src/mask_rcnn/src/MODEL_OUTPUTS/models/vgg_netfirst_try.hdf5")
 
-train_directory_ = "/home/peter/Documents/okvis_drl/build/tate3_dataset"
-validation_directory_ = "/home/peter/Documents/okvis_drl/build/tate3_dataset"
+train_directory_ = "/home/peter/Documents/okvis_drl/build/blackfriars1_dataset"
+validation_directory_ = "/home/peter/Documents/okvis_drl/build/blackfriars1_dataset"
 model_description,epochs =  "first_try",10
 #cnn.train(train_directory_, validation_directory_,model_description,epochs)
 
@@ -98,10 +98,10 @@ def create_circle_roll_test_data(directory,global_):
             angle_ = i*(360+90)/1000
         else:
             angle_ = 0
-        rad = angle_*3.14/180
+        rad = (angle_+90)*3.14/180
         x = radius*math.sin(rad)
         z = radius*math.cos(rad)
-        C = np.array([[1,0,0],[0,math.cos(rad),-math.sin(rad)],[0,math.sin(rad),math.cos(rad)]]).reshape((3,3))
+        C = np.array([[math.cos(rad),-math.sin(rad),0],[math.sin(rad),math.cos(rad),0],[0,0,1]]).reshape((3,3))#([[1,0,0],[0,math.cos(rad),-math.sin(rad)],[0,math.sin(rad),math.cos(rad)]]).reshape((3,3))
         r = np.array([x,0,z]).reshape((3,-1))
         r_f = os.path.join(directory,"pose",str(count) + "_T_WS_r.txt")
         c_f = os.path.join(directory,"pose",str(count) + "_T_WS_C.txt")
@@ -118,7 +118,7 @@ def create_test_data(directory):
     count = 0
     for i in range(no_files):
         C = np.array([[1,0,0],[0,1,0],[0,0,1]]).reshape((3,3))
-        r = np.array([count,count,count]).reshape((3,-1))
+        r = np.array([0,0,count]).reshape((3,-1))
         r_f = os.path.join(directory,"pose",str(count) + "_T_WS_r.txt")
         c_f = os.path.join(directory,"pose",str(count) + "_T_WS_C.txt")
         s_f = os.path.join(directory,"pose",str(count) + "_sb.txt")
@@ -131,14 +131,14 @@ def create_test_data(directory):
 directory = "/home/peter/Tests"
 create_test_data_structure(directory)
 directory = "/home/peter/Tests"#"/home/peter/Documents/okvis_drl/build/tate3_dataset"
-train_directory_,validation_directory_ = directory,directory
+#train_directory_,validation_directory_ = directory,directory
 
-images = False
+images = True
 image_height = 480#180
 image_width= 640#240
 no_image_channels=3
 camera_model_location = os.path.join("utils",'test_camera_model.json')
-sequence_length = 50
+sequence_length = 500
 
 params_train = {'dir': train_directory_,
               'batch_size': 1,
@@ -149,18 +149,23 @@ params_train = {'dir': train_directory_,
 
 
 
-
 ''''
 #create_test_data,
 '''
-for test in [create_circle_pitch_test_data,create_circle_roll_test_data,create_circle_yaw_test_data]:#,create_circle_pitch_test_data]:
+#create_test_data(directory)
+
+for test in [create_circle_roll_test_data]:#create_circle_pitch_test_data,create_circle_roll_test_data,create_circle_yaw_test_data]:#,create_circle_pitch_test_data]:
     test(directory,True)
+
 
 train_generator = DataGenerator(**params_train)
 train_gen = train_generator.generate()
+x,y,_,z = train_gen.__next__()
+
+print(x)
+print(y)
 
 
-'''
 
 class future_points_visualiser:
     def __init__(self,camera_model_location):
@@ -181,12 +186,8 @@ class future_points_visualiser:
         self.T_SC = np.array(self.camera_model["T_SC"]).reshape((4,4))
 
 
-    def world_to_camera(self,array,T_CW):
+    def camera_frame_to_camera(self,camera_point):
         #array is (3,N) containing x,y,z
-        N = array.shape[1]
-        world_point = np.ones((4,N))
-        world_point[:3,:] = array
-        camera_point = np.matmul(T_CW,world_point)
         camera_point[:2,:] = camera_point[:2,:]/camera_point[2,:]
         camera_point[:2,:] = np.matmul(self.foc_mat_inv,camera_point[:2,:])
         camera_point[:3,:] = camera_point[:3,:]+self.c_mat
@@ -200,35 +201,25 @@ class future_points_visualiser:
         return reversed
 
     def plot_image(self,img,coords,initial_transform):
-        T_CW = self.reverse_transform(np.matmul(self.T_SC,initial_transform))
         #array is (3,N) containing x,y,z
-        coords = self.world_to_camera(coords,T_CW)
+        print("Coords are " + str(coords) + " shape is " + str(coords.shape))
+        coords = self.camera_frame_to_camera(coords)
+        print("Camera Coords are " + str(coords))
         for c in range(coords.shape[1]):
-            coord = (int(coords[0,c]),int(coords[1,c]))
-            #print("Coords are " + str((coords[1,c],coords[0,c])))
-            #v2.circle(img, center, radius, color)
-            #cv2.circle(img,center=(10,400),radius=5, color=(255,0,0), thickness=1, lineType=8, shift=0)
-            cv2.circle(img,center=coord,radius=5, color=(255,0,0), thickness=1, lineType=8, shift=0)
+            if coords[0] < 640 and coords[1] < 640:
+                print("CAN PLOT WOOP ")
+                coord = (int(coords[0,c]),int(coords[1,c]))
+                #print("Coords are " + str((coords[1,c],coords[0,c])))
+                #v2.circle(img, center, radius, color)
+                #cv2.circle(img,center=(10,400),radius=5, color=(255,0,0), thickness=1, lineType=8, shift=0)
+                cv2.circle(img,center=coord,radius=5, color=(255,0,0), thickness=1, lineType=8, shift=0)
         return img
 
-cnn = CNN_LSTM(lr = 0.0001,cached_model="/home/peter/catkin_ws/src/mask_rcnn/src/MODEL_OUTPUTS/models/vgg_netfirst_try.hdf5")
-#cnn.train(train_directory_, validation_directory_,model_description,epochs=200)
-
-train_generator = DataGenerator(**params_train)
-train_gen = train_generator.generate()
-
-
-
-
-
-
-#print("X is " + str(X))
-#print("X shape is " + str(X.shape))
 
 
 while 1:
     fpv = future_points_visualiser(camera_model_location)
-    pv = pose_visualiser(400,400)
+    #pv = pose_visualiser(400,400)
     if images:
         X_initial,X_images,X,Y  = train_gen.__next__()
     else:
@@ -251,20 +242,19 @@ while 1:
             img = np.zeros((480,640,3)) + 245
 
         #print("img.shape is " + str(img.shape) )
-        initial_point = X_initial[seq_no,:]
         initial_transform = np.zeros((4,4))
-        initial_transform[:3,:] = X[seq_no,0,:,None].reshape((3,4))
-        initial_transform[:3,3:] = initial_point[:,None]
+        initial_transform[:3,:] = X_initial[seq_no,:,:]
         initial_transform[3,3] = 1
         for point in range(1,sequence_length):
             point = X[seq_no,point,:,None].reshape((3,4))[:3,3:]
-            point = point + initial_transform[:3,3:]
             xpoints.append(point[0,0])
             ypoints.append(point[1,0])
             zpoints.append(point[2,0])
-            pv.add_points(point[[2,1],:,None])
+            #point[1,0] -= 0.8
+            #pv.add_points(point[[2,1],:,None])
             img = fpv.plot_image(img,point,initial_transform)
 
+        '''
         c = pv.count
         pv.count = 1
         coord = pv.image_coords(point[[2,1],:,None].reshape((1,-1)))
@@ -284,17 +274,17 @@ while 1:
             #print("X seq point is  " + str(X[seq_no,point_i+4,:,None]))
             #print("X seq point reshaped is  " + str(X[seq_no,point_i+4,:,None].reshape((3,4))))
             X[seq_no,point_i+4,:,None][[3,7,11]] = np.array(point_old).reshape((3,1))
-
+        '''
         print("Predicted points are : " + str(np.array([predicted_xpoints,predicted_ypoints,predicted_zpoints])))
         ax.scatter(xpoints,ypoints,zpoints, zdir='z', s=2, c='k')
         ax.scatter(predicted_xpoints,predicted_ypoints,predicted_zpoints, zdir='z', s=2, c='g')
         ax.scatter([xpoints[-1]],[ypoints[-1]], zs=[zpoints[-1]], zdir='z', s=20, c='b')
-        cv2.circle(img2,center=coord,radius=5, color=(255,0,0), thickness=1, lineType=8, shift=0)
+        #cv2.circle(img2,center=coord,radius=5, color=(255,0,0), thickness=1, lineType=8, shift=0)
         cv2.imshow("i",img)
-        cv2.imshow("i2",img2)
+        #cv2.imshow("i2",img2)
         plt.show()
         cv2.waitKey(0)
-'''
+
 '''
 for lr in [0.0001]:#01]:
     cnn = CNN_LSTM(lr = lr)

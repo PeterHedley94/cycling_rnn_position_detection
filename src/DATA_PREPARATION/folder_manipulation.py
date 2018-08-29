@@ -104,7 +104,7 @@ def get_image(filepath):
 def get_resized_image(filepath,height,width):
     img = cv2.imread(filepath)
     resized_image = cv2.resize(img, (width,height)) #np.expand_dims(, axis=0)
-    return resized_image
+    return np.array(resized_image)
 
 #STACK ALL IMAGES IN A FOLDER INTO AN TENSOR
 def dstack_folder_sequence(directory_, sequence_length):

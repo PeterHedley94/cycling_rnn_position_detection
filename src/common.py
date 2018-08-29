@@ -20,8 +20,8 @@ image_height = 480#180
 image_width= 640#240
 no_image_channels=3
 camera_model_location = os.path.join("utils",'test_camera_model.json')
-train_directory = "/vol/gpudata//ph817/imp1"#"/home/peter/Tests"#"/home/peter/Documents/okvis_drl/build/imp4"
-validation_directory = "/vol/gpudata/ph817/imp3"#"/home/peter/Documents/okvis_drl/build/imp4"#
+train_directory = "/home/peter/Documents/okvis_drl/build/blackfriars1_dataset"#"/vol/gpudata/ph817/imp1"#"/home/peter/Tests"#"/home/peter/Documents/okvis_drl/build/imp4"
+validation_directory = "/home/peter/Documents/okvis_drl/build/blackfriars2_dataset"#"/vol/gpudata/ph817/imp3"#"/home/peter/Documents/okvis_drl/build/imp4"#
 
 
 webhook_url = 'https://hooks.slack.com/services/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'

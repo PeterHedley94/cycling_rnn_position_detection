@@ -61,7 +61,7 @@ try:
 
     with open("/vol/gpudata/ph817/lr_images.txt","w") as file:
         file.write("lr,decay,val\n")
-        for lr_test in range(-80,-30,5):#[-3,-4,-5,-6,-7,-8]:
+        for lr_test in range(-80,-20,5):#[-3,-4,-5,-6,-7,-8]:
             lr_test = lr_test/10
             max = -1e-6
             val = get_vals(lr = lr_test,decay = 0)
@@ -109,14 +109,14 @@ try:
         for time_gap in range(5,100,5):
             print("On time gap " + str(time_gap))
             send_slack_message("Checking pose model time gap : " + str(time_gap))
-            params_train = get_params(time_gap,2)
+            params_train = get_params(time_gap,batch_size=batch_size,directory=train_directory)
             model = rcnn_model(number_outputs,sequence_length)
             model.train(epochs,params_train)
             results = [time_gap]
 
 
             ##########################################
-            params_val = get_params(time_gap = 15,batch_size=batch_size,directory=validation_directory)
+            params_val = get_params(time_gap = time_gap,batch_size=batch_size,directory=validation_directory)
 
 
             #test model
