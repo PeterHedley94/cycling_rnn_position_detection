@@ -28,8 +28,8 @@ webhook_url = 'https://hooks.slack.com/services/TCG8S1ZAT/BCF7PE51Q/RYpcdY6D9pl0
 SEND_TO_SLACK = True
 
 
-#For Model outputs
-MODEL_OUTPUTS_FOLDER = "/vol/gpudata/ph817/MODEL_OUTPUTS"#os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS')
+#For Model outputs #/vol/gpudata/ph817/
+MODEL_OUTPUTS_FOLDER = "MODEL_OUTPUTS"#os.path.join('/vol/bitbucket/ph817','MODEL_OUTPUTS')
 CHECKPOINTS_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'checkpoints')
 MODEL_SAVE_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'models')
 OLD_MODELS_FOLDER = os.path.join(MODEL_OUTPUTS_FOLDER,'old_models')

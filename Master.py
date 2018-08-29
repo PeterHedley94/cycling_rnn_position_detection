@@ -147,10 +147,20 @@ params_train = {'dir': train_directory_,
                 'images':images,'image_height':image_height,'image_width':image_width,
                 'no_image_channels':no_image_channels,'camera_model_location':camera_model_location}
 
+
+
+
+''''
 #create_test_data,
 '''
 for test in [create_circle_pitch_test_data,create_circle_roll_test_data,create_circle_yaw_test_data]:#,create_circle_pitch_test_data]:
-    test(directory,True)'''
+    test(directory,True)
+
+train_generator = DataGenerator(**params_train)
+train_gen = train_generator.generate()
+
+
+'''
 
 class future_points_visualiser:
     def __init__(self,camera_model_location):
@@ -284,7 +294,7 @@ while 1:
         cv2.imshow("i2",img2)
         plt.show()
         cv2.waitKey(0)
-
+'''
 '''
 for lr in [0.0001]:#01]:
     cnn = CNN_LSTM(lr = lr)

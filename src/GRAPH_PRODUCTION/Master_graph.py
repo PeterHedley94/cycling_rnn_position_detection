@@ -61,7 +61,7 @@ generate_heat_map(**heat_map_params)
 
 ###############################################
 #Images Data - Learning Rate and Decay
-filename = "lr_rcnn.txt"
+filename = "lr_images.txt"
 data = get_lr_decay_data(filename)
 x_data = data[:,0]
 y_data = data[:,1]
@@ -82,3 +82,16 @@ heat_map_params = {'title':title,'x_data':x_data
 generate_heat_map(**heat_map_params)
 
 ###############################################
+#Pose Model vs linear model , time gap
+filename = "time_gap_pose_results.txt"
+data = get_lr_decay_data(filename)
+ax.text(x_data_set[-1], y_data_set[-1], my_label, horizontalalignment='left', size='small', color=my_color, fontsize=10)
+ax.bar(x, height, *, align='center', **kwargs)
+ax.set_title(title)
+ax.set_xlabel(x_axis_title)
+ax.set_ylabel(y_axis_title)
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.set_ylim(0.6, 1.0)
+fig.savefig(graph_name, bbox_inches='tight', format='eps', dpi=1200)
+plt.show()
