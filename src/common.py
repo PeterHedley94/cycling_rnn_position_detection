@@ -9,7 +9,7 @@ IM_HEIGHT, IM_WIDTH, NUMBER_CHANNELS = 50,50,3
 #IM_HEIGHT, IM_WIDTH, NUMBER_CHANNELS = 480,640,3
 sequence_length_ = 5
 sequence_length = 5
-pose_data_dims = (4,3)
+pose_data_dims = (4,4)
 number_outputs = 3
 batch_size = 3
 BATCH_SIZE = 3
@@ -20,8 +20,8 @@ image_height = 480#180
 image_width= 640#240
 no_image_channels=3
 camera_model_location = os.path.join("utils",'test_camera_model.json')
-train_directory = "/home/peter/Documents/okvis_drl/build/blackfriars1_dataset"#"/vol/gpudata/ph817/imp1"#"/home/peter/Tests"#"/home/peter/Documents/okvis_drl/build/imp4"
-validation_directory = "/home/peter/Documents/okvis_drl/build/blackfriars2_dataset"#"/vol/gpudata/ph817/imp3"#"/home/peter/Documents/okvis_drl/build/imp4"#
+train_directory = "/vol/gpudata/ph817/imp1"#"/home/peter/Tests"#"/home/peter/Documents/okvis_drl/build/imp4"#"/home/peter/Documents/okvis_drl/build/blackfriars1_dataset"#
+validation_directory = "/vol/gpudata/ph817/imp3"#"/home/peter/Documents/okvis_drl/build/imp4"#"/home/peter/Documents/okvis_drl/build/blackfriars2_dataset"#
 
 
 webhook_url = 'https://hooks.slack.com/services/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'

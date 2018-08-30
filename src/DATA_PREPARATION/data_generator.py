@@ -219,7 +219,7 @@ class DataGenerator(object):
             Y[seq_no,:,None] = T_W_C_transformed[:3,3:].reshape((-1,1))
 
         if self.use_images:
-            #X_images = (X_images - 127.5) / 127.5
+            X_images = (X_images - 127.5) / 127.5
             if self.debug_mode_:
                 return X_initial_matrices,X_images,X,Y
             else:

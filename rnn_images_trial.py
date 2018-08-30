@@ -57,9 +57,9 @@ try:
 
     lr = -4
     decay = 0.001
-    epochs = 250
+    epochs = 2
 
-    with open("/vol/gpudata/ph817/lr_images.txt","w") as file:
+    with open("lr_images.txt","w") as file:
         file.write("lr,decay,val\n")
         for lr_test in range(-80,-20,5):#[-3,-4,-5,-6,-7,-8]:
             lr_test = lr_test/10
@@ -85,12 +85,12 @@ try:
     bo1.maximize(init_points=2, n_iter=60, kappa=10,acq="ucb") #, acq="ucb"
 
 
-    json.dump(bo.res['max'], open("/vol/gpudata/ph817/bayes_orcnn_pt_results.txt",'w'))
+    json.dump(bo.res['max'], open("bayes_rcnn_pt_results.txt",'w'))
     print(bo.res['all'])
 
-    np.save("/vol/gpudata/ph817/bayes_rcnn_opt_all_values",bo.res['all']['values'])
+    np.save("bayes_rcnn_opt_all_values",bo.res['all']['values'])
 
-    with open("/vol/gpudata/ph817/bayes_opt_images_all_results.txt",'w') as file:
+    with open("bayes_opt_images_all_results.txt",'w') as file:
         for i in bo.res['all']['params']:
                 json.dump(i,file)
                 file.write("\n")
@@ -102,9 +102,9 @@ try:
 
     send_slack_message("Finished Bayesian Optimisation of images")
 
-    epochs = 500
+    epochs = 5
 
-    with open("/vol/gpudata/ph817/time_gap_images_results.txt","w") as file:
+    with open("time_gap_images_results.txt","w") as file:
         file.write("Time_gap,nnl\n")
         for time_gap in range(5,100,5):
             print("On time gap " + str(time_gap))
