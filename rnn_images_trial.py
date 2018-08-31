@@ -16,8 +16,6 @@ from src.callbacks import *
 
 send_slack_message("Started optimising images model")
 
-
-
 images = True
 def get_params(time_gap,batch_size,directory):
     #batch_size = int(math.floor(990/time_gap))
@@ -57,8 +55,10 @@ def get_vals(conv1_size = 5,conv2_size = 5,no_layers=4,opt = 3,lr=-6,decay = 0):
 
 lr = -4
 decay = 0.001
-epochs = 2
+epochs = 5#00
 
+
+'''
 with open("lr_images.txt","w") as file:
     file.write("lr,decay,val\n")
     for lr_test in range(-80,-20,5):#[-3,-4,-5,-6,-7,-8]:
@@ -79,10 +79,12 @@ with open("lr_images.txt","w") as file:
                 decay = decay_test
 
 send_slack_message("Finished Lr and decay optimisation images")
+'''
+
 bo1 = BayesianOptimization(lambda conv1_size,conv2_size,no_layers: get_vals(conv1_size,conv2_size,no_layers,opt=3,lr=lr,decay=decay),
                           {"conv1_size":(4,5),"conv2_size":(4,5),"no_layers":(2,4)})
 bo1.explore({"conv1_size":(4,5),"conv2_size":(4,5),"no_layers":(2,4)})
-bo1.maximize(init_points=2, n_iter=60, kappa=10,acq="ucb") #, acq="ucb"
+bo1.maximize(init_points=2, n_iter=5, kappa=10,acq="ucb") #, acq="ucb"
 
 
 json.dump(bo.res['max'], open("bayes_rcnn_pt_results.txt",'w'))
