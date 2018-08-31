@@ -14,7 +14,7 @@ from src.DATA_PREPARATION.data_generator import *
 from src.common import *
 from src.callbacks import *
 
-send_slack_message("Started optimising pose model")
+#send_slack_message("Started optimising pose model")
 
 try:
     sequence_length_ = 5

@@ -53,12 +53,13 @@ def get_vals(conv1_size = 5,conv2_size = 5,no_layers=4,opt = 3,lr=-6,decay = 0):
     else:
         return -val #.astype(np.int64)
 
-lr = -4
-decay = 0.001
-epochs = 5#00
+lr = -3.5
+decay = 10**(-6)
+epochs = 500
+opt = 0
 
 
-'''
+
 with open("lr_images.txt","w") as file:
     file.write("lr,decay,val\n")
     for lr_test in range(-80,-20,5):#[-3,-4,-5,-6,-7,-8]:
@@ -79,12 +80,12 @@ with open("lr_images.txt","w") as file:
                 decay = decay_test
 
 send_slack_message("Finished Lr and decay optimisation images")
-'''
 
-bo1 = BayesianOptimization(lambda conv1_size,conv2_size,no_layers: get_vals(conv1_size,conv2_size,no_layers,opt=3,lr=lr,decay=decay),
-                          {"conv1_size":(4,5),"conv2_size":(4,5),"no_layers":(2,4)})
-bo1.explore({"conv1_size":(4,5),"conv2_size":(4,5),"no_layers":(2,4)})
-bo1.maximize(init_points=2, n_iter=5, kappa=10,acq="ucb") #, acq="ucb"
+
+bo = BayesianOptimization(lambda conv1_size,conv2_size,no_layers: get_vals(conv1_size,conv2_size,no_layers,opt=opt,lr=lr,decay=decay),
+                          {"conv1_size":(2,5),"conv2_size":(2,5),"no_layers":(2,4)})
+bo.explore({"conv1_size":(2,5),"conv2_size":(2,5),"no_layers":(2,4)})
+bo.maximize(init_points=2, n_iter=50, kappa=10,acq="ucb") #, acq="ucb"
 
 
 json.dump(bo.res['max'], open("bayes_rcnn_pt_results.txt",'w'))
@@ -104,15 +105,15 @@ no_layers = bo.res["max"]['max_params']['no_layers']
 
 send_slack_message("Finished Bayesian Optimisation of images")
 
-epochs = 5
+epochs = 500
 
 with open("time_gap_images_results.txt","w") as file:
     file.write("Time_gap,nnl\n")
-    for time_gap in range(5,100,5):
+    for time_gap in range(10,100,10):
         print("On time gap " + str(time_gap))
         send_slack_message("Checking pose model time gap : " + str(time_gap))
         params_train = get_params(time_gap,batch_size=batch_size,directory=train_directory)
-        model = rcnn_model(number_outputs,sequence_length)
+        model = rcnn_model(number_outputs,sequence_length,conv1_size,conv2_size,no_layers,opt,lr,decay)
         model.train(epochs,params_train)
         results = [time_gap]
 
@@ -144,4 +145,5 @@ with open("time_gap_images_results.txt","w") as file:
         reg.fit(x,y)
         results.append(mean_squared_error(y, reg.predict(x)))
         file.write(str(results[0]) + "," + str(results[1]) + "," + str(results[2]) + "\n")'''
-send_slack_message("Finished optimising images model")
+
+#send_slack_message("Finished optimising images model")
