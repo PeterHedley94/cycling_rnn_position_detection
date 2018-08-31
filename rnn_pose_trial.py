@@ -68,11 +68,10 @@ try:
 
 
 
-    lr = -4
-    decay = 0
-    epochs = 500
-    opt = 3
-
+    lr = -3
+    decay = 10**(-5)
+    epochs = 1000
+    opt = 2
 
     with open("lr_pose.txt","w") as file:
         file.write("lr,decay,val\n")
@@ -93,12 +92,11 @@ try:
                     lr = lr_test
                     decay = decay_test
 
-
     send_slack_message("Finished Lr and decay optimisation")
     bo = BayesianOptimization(lambda lstm_1_size,lstm_2_size: get_vals(lstm_1_size,lstm_2_size,opt,lr,decay),
-                              {"lstm_1_size":(4,8),"lstm_2_size":(4,8)})
-    bo.explore({"lstm_1_size":(4,8),"lstm_2_size":(4,8)})
-    bo.maximize(init_points=2, n_iter=10, kappa=10,acq="ucb") #, acq="ucb"
+                              {"lstm_1_size":(1,8),"lstm_2_size":(1,8)})
+    bo.explore({"lstm_1_size":(1,8),"lstm_2_size":(1,8)})
+    bo.maximize(init_points=2, n_iter=500, kappa=10,acq="ucb") #, acq="ucb"
 
 
     json.dump(bo.res['max'], open("bayes_opt_pose_results.txt",'w'))
