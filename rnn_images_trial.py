@@ -55,11 +55,11 @@ def get_vals(conv1_size = 5,conv2_size = 5,no_layers=4,opt = 3,lr=-6,decay = 0):
 
 lr = -3.5
 decay = 10**(-6)
-epochs = 500
+epochs = 5
 opt = 0
 
 
-
+'''
 with open("lr_images.txt","w") as file:
     file.write("lr,decay,val\n")
     for lr_test in range(-80,-20,5):#[-3,-4,-5,-6,-7,-8]:
@@ -80,7 +80,7 @@ with open("lr_images.txt","w") as file:
                 decay = decay_test
 
 send_slack_message("Finished Lr and decay optimisation images")
-
+'''
 
 bo = BayesianOptimization(lambda conv1_size,conv2_size,no_layers: get_vals(conv1_size,conv2_size,no_layers,opt=opt,lr=lr,decay=decay),
                           {"conv1_size":(2,5),"conv2_size":(2,5),"no_layers":(2,4)})
